@@ -15,8 +15,7 @@ module.exports = function (app, db) {
                     message: 'Incorrect username or password'
                 });
             } else {
-                console.log(user.validPassword(password));
-                let token = jwt.sign({user_id: user.user_id}, config.secret);
+                let token = jwt.sign({userId: user.userId}, config.secret);
 
                 // return the JWT token for the future API calls
                 res.json({

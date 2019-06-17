@@ -36,7 +36,7 @@ let checkTokenSocketio = (socket, next) => {
             if (err) {
                 next(new Error('Authentication error'));
             } else {
-                socket.user_id = decoded.user_id;
+                socket.userId = decoded.userId;
                 next();
             }
         });

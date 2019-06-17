@@ -110,6 +110,9 @@ const Messages = sequelize.define('messages', {
     timestamps: false,
 });
 
+Messages.beforeCreate(function (message) {
+    message.date = sequelize.fn('NOW');
+});
 
 const Chats = sequelize.define('chats', {
     chatId: {
