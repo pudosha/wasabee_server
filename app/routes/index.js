@@ -1,6 +1,7 @@
-const noteRoutes = require('./note_routes');
+const login = require('./login')
+    , signUp = require('./signUp');
 
-module.exports = function(app, db) {
-    noteRoutes(app, db);
-    // add new note routes
+module.exports = function (app, db) {
+    login(app, db);
+    signUp(app, db);
 };

@@ -15,7 +15,8 @@
     "socket.io": "latest",
     "body-parser": "latest",
     "jsonwebtoken": "latest",
+    "mysql2": "latest",
     "sequelize": "latest",
-    "mysql": "latest"
+    "bcrypt": "latest"
   }
 }

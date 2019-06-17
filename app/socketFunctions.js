@@ -1,5 +1,5 @@
 function onNewMessage(msg) {
-
+    console.log(msg);
 }
 
 function onEditMessage(msg) {
