@@ -15,6 +15,7 @@
     "socket.io": "latest",
     "body-parser": "latest",
     "jsonwebtoken": "latest",
+    "sequelize": "latest",
     "mysql": "latest"
   }
 }

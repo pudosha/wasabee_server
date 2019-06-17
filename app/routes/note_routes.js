@@ -15,7 +15,7 @@ module.exports = function (app, db) {
             db.query(query, [username, password], function (error, results, fields) {
                 if (error) console.log(error);
                 else {
-                    let user_id = results[0];
+                    let user_id = results[0].user_id;
                     if (user_id === undefined) {
                         res.json({
                             success: false,
@@ -46,7 +46,7 @@ module.exports = function (app, db) {
 
     });
 
-    app.post('/signup', (req, res, next) => {
+    app.post('/signUp', (req, res, next) => {
             let username = req.body.username,
                 password = req.body.password;
 
@@ -63,7 +63,7 @@ module.exports = function (app, db) {
                     db.query('INSERT into users (username, password) values(?, UNHEX(SHA2(?, 256)));', [username, password]);
 
                     db.query('SELECT LAST_INSERT_ID();', function (error, results, fields) {
-                        let token = jwt.sign({user_id: results[0]}, config.secret);
+                        let token = jwt.sign({user_id: results[0].user_id}, config.secret);
                         res.json({
                             success: true,
                             message: 'Authentication successful!',

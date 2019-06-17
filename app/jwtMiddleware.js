@@ -16,7 +16,7 @@ let checkToken = (req, res, next) => {
                     message: 'Token is not valid'
                 });
             } else {
-                req.decoded = decoded;
+                req.user_id = decoded;
                 next();
             }
         });
@@ -28,6 +28,24 @@ let checkToken = (req, res, next) => {
     }
 };
 
+let checkTokenSocketio = (socket, next) => {
+    let token = socket.handshake.query.authToken; // Express headers are auto converted to lowercase
+
+    if (token) {
+        jwt.verify(token, config.secret, (err, decoded) => {
+            if (err) {
+                next(new Error('Authentication error'));
+            } else {
+                socket.user_id = decoded.user_id;
+                next();
+            }
+        });
+    } else {
+        next(new Error('Authentication error'));
+    }
+};
+
 module.exports = {
-    checkToken: checkToken
+    checkToken: checkToken,
+    checkTokenSocketio: checkTokenSocketio
 };
