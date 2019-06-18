@@ -170,12 +170,6 @@ const ChatUser = sequelize.define('chat_user', {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
-
-    isRead: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-    },
 }, {
     timestamps: false,
 });
@@ -184,4 +178,8 @@ sequelize.sync();
 
 module.exports = {
     Users: Users,
+    Messages: Messages,
+    Chats: Chats,
+    Updates: Updates,
+    ChatUser: ChatUser,
 };

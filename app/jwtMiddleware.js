@@ -31,6 +31,7 @@ let checkToken = (req, res, next) => {
 let checkTokenSocketio = (socket, next) => {
     let token = socket.handshake.query.authToken; // Express headers are auto converted to lowercase
 
+    console.log("middleware");
     if (token) {
         jwt.verify(token, config.secret, (err, decoded) => {
             if (err) {
