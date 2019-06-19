@@ -6,6 +6,9 @@ module.exports = function (app, db) {
 
         db.ChatUser.findAll({
             where: {username: username},
+            include: [
+                {model: messages, as: 'message'}
+                ]
         }).then(chats => {
             console.log(chats);
             res.json(chats);

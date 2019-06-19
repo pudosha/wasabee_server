@@ -115,10 +115,6 @@ const Chats = sequelize.define('chats', {
     lastMessageID: {
         type: Sequelize.INTEGER,
         defaultValue: null,
-        references: {
-            model: 'messages',
-            key: 'messageID'
-        }
     },
 }, {
     timestamps: false,
@@ -128,10 +124,6 @@ const ChatUser = sequelize.define('chat_user', {
     chatID: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-            model: 'chats',
-            key: 'chatID'
-        }
     },
 
     username: {
