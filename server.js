@@ -19,10 +19,9 @@ require('./app/routes')(app, db);
 
 io.sockets.on('connection', function (socket) {
 
-    db.Users.update({
-        isOnline: true,
-        where: {username: socket.username}
-    });
+    db.Users.update(
+        {isOnline: true},
+        {where: {username: socket.username}});
 
     db.ChatUser.findAll({
         attributes: [['chatID', 'ID'],],
@@ -91,19 +90,20 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
-        db.Users.update({
-            isOnline: false,
-            where: {username: socket.username}
-        });
+        db.Users.update(
+            {isOnline: false},
+            {where: {username: socket.username}});
     });
 });
 
-/*
 setInterval(function () {
-    message = {};
-    message['message'] = "hoi";
-    message['date'] = "14:26";
-    message['sender'] = "Hel";
-    io.sockets.emit('newMessage', message);
+    db.Messages.create({
+        chatID: "123",
+        username: "testUser",
+        message: "testMessage",
+    }).then(message => {
+        console.log(message.toJSON());
+        console.log("123");
+        io.to("123").emit('newMessage', message);
+    });
 }, 10000);
- */
