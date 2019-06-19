@@ -2,11 +2,10 @@ const express = require('express')
     , app = express()
     , server = require('http').createServer(app)
     , io = require('socket.io').listen(server)
-    , db = require('./app/database')
+    , db = require('./app/models')
     , bodyParser = require('body-parser')
     , config = require("./app/config")
     , middleware = require('./app/jwtMiddleware');
-
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json({inflate: true}));
@@ -23,7 +22,7 @@ io.sockets.on('connection', function (socket) {
         {isOnline: true},
         {where: {username: socket.username}});
 
-    db.ChatUser.findAll({
+    db.ChatUsers.findAll({
         attributes: [['chatID', 'ID'],],
         where: {username: socket.username}
     }).then(chats => {
@@ -33,11 +32,11 @@ io.sockets.on('connection', function (socket) {
         });
     });
 
-    function isAuthorized(msg, next) {
+    function ifAuthorized(msg, next) {
         msg = JSON.parse(msg);
         console.log(msg);
 
-        db.ChatUser.findOne({
+        db.ChatUsers.findOne({
             where: {
                 chatID: msg.chatID,
                 username: socket.username,
@@ -52,7 +51,7 @@ io.sockets.on('connection', function (socket) {
     }
 
     socket.on('newMessage', msg => {
-        isAuthorized(msg, function (msg) {
+        ifAuthorized(msg, function (msg) {
             db.Messages.create({
                 chatID: msg.chatID,
                 username: socket.username,
@@ -67,7 +66,7 @@ io.sockets.on('connection', function (socket) {
 
 
     socket.on('editMessage', msg => {
-        isAuthorized(msg, function (msg) {
+        ifAuthorized(msg, function (msg) {
             db.Messages.update({
                 message: msg.message,
                 isEdited: true,
@@ -79,7 +78,7 @@ io.sockets.on('connection', function (socket) {
         })
     });
     socket.on('deleteMessage', function (msg) {
-        isAuthorized(msg, function (msg) {
+        ifAuthorized(msg, function (msg) {
             db.Messages.destroy({
                 where: {messageID: message.messageID}
             }).then(message => {

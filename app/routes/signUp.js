@@ -19,7 +19,7 @@ module.exports = function (app, db) {
                         lastName: "sampleLastName",
                         password: password,
                     }).then(function (user) {
-                        db.ChatUser.create({
+                        db.ChatUsers.create({
                             username: username,
                             chatID: 123
                         });

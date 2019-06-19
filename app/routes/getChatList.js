@@ -2,16 +2,22 @@ const middleware = require('./../jwtMiddleware');
 
 module.exports = function (app, db) {
     app.post('/getChatList', middleware.checkToken, (req, res) => {
-        let username = req.body.username;
-
-        db.ChatUser.findAll({
-            where: {username: username},
-            include: [
-                {model: messages, as: 'message'}
-                ]
+        db.ChatUsers.findAll({
+            where: {username: req.username},
         }).then(chats => {
+            console.log(req.username);
             console.log(chats);
-            res.json(chats);
+            return db.Sequelize.Promise.map(chats, function (chat) {
+                return db.Messages.findOne({
+                    attributes: ['username', 'message', 'date'],
+                    where: {chatID: chat.get('chatID')},
+                    order: [['date', 'DESC']],
+                    include: [{model: db.Chats}]
+                });
+            })
+        }).then(messages => {
+            console.log(messages);
+            res.json(messages);
         })
     });
 };
