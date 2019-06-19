@@ -16,6 +16,7 @@ module.exports = function (app, db) {
                 });
             })
         }).then(messages => {
+            console.log("chats");
             console.log(messages);
             res.json(messages);
         })

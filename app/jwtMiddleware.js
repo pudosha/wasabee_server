@@ -11,6 +11,7 @@ let checkToken = (req, res, next) => {
     if (token) {
         jwt.verify(token, config.secret, (err, decoded) => {
             if (err) {
+                console.log(token);
                 return res.sendStatus(401);
             } else {
                 req.username = decoded.username;
@@ -18,6 +19,7 @@ let checkToken = (req, res, next) => {
             }
         });
     } else {
+        console.log("no token");
         return res.sendStatus(401);
     }
 };
