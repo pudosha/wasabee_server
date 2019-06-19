@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize')
     , config = require('./config')
-    , bcrypt = require('bcrypt');
+    , bcrypt = require('bcrypt')
+    , moment = require('moment');
 
 const sequelize = new Sequelize('wasabee', config.dbLogin, config.dbPassword, {
     host: 'localhost',
@@ -18,17 +19,10 @@ sequelize
 
 
 const Users = sequelize.define('users', {
-    userId: {
-        type: Sequelize.INTEGER,
+    username: {
+        type: Sequelize.STRING(32),
         allowNull: false,
         primaryKey: true,
-        autoIncrement: true,
-    },
-
-    username: {
-        type: Sequelize.STRING(16),
-        allowNull: false,
-        unique: true,
     },
 
     firstName: {
@@ -60,7 +54,7 @@ const Users = sequelize.define('users', {
     timestamps: false,
 });
 
-Users.prototype.validPassword = function(password) {
+Users.prototype.validPassword = function (password) {
     return bcrypt.compareSync(password, this.password);
 };
 
@@ -74,20 +68,20 @@ Users.beforeUpdate(generateHash);
 
 
 const Messages = sequelize.define('messages', {
-    messageId: {
+    messageID: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
     },
 
-    chatId: {
+    chatID: {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
 
-    userId: {
-        type: Sequelize.INTEGER,
+    username: {
+        type: Sequelize.STRING(32),
         allowNull: false,
     },
 
@@ -96,26 +90,18 @@ const Messages = sequelize.define('messages', {
         allowNull: false,
     },
 
-    date: {
-        type: Sequelize.DATE,
-        allowNull: false
-    },
-
     isEdited: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
     },
 }, {
-    timestamps: false,
-});
-
-Messages.beforeCreate(function (message) {
-    message.date = sequelize.fn('NOW');
+    updatedAt: false,
+    createdAt: "date",
 });
 
 const Chats = sequelize.define('chats', {
-    chatId: {
+    chatID: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
@@ -126,48 +112,30 @@ const Chats = sequelize.define('chats', {
         type: Sequelize.STRING(64),
     },
 
-    lastMessageId: {
+    lastMessageID: {
         type: Sequelize.INTEGER,
         defaultValue: null,
-    },
-}, {
-    timestamps: false,
-});
-
-const Updates = sequelize.define('updates', {
-    updateId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true,
-    },
-
-    chatId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-    },
-
-    updateType: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-    },
-
-    messageId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
+        references: {
+            model: 'messages',
+            key: 'messageID'
+        }
     },
 }, {
     timestamps: false,
 });
 
 const ChatUser = sequelize.define('chat_user', {
-    chatId: {
+    chatID: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+            model: 'chats',
+            key: 'chatID'
+        }
     },
 
-    userId: {
-        type: Sequelize.INTEGER,
+    username: {
+        type: Sequelize.STRING(32),
         allowNull: false,
     },
 }, {
@@ -180,6 +148,5 @@ module.exports = {
     Users: Users,
     Messages: Messages,
     Chats: Chats,
-    Updates: Updates,
     ChatUser: ChatUser,
 };

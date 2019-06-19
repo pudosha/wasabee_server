@@ -10,18 +10,14 @@ module.exports = function (app, db) {
             where: {username: username}
         }).then(function (user) {
             if (!user || !user.validPassword(password)) {
-                res.json({
-                    success: false,
-                    message: 'Incorrect username or password'
-                });
+                res.sendStatus(401)
             } else {
-                let token = jwt.sign({userId: user.userId}, config.secret);
+                let token = jwt.sign({username: user.username}, config.secret);
 
                 // return the JWT token for the future API calls
                 res.json({
-                    success: true,
-                    message: 'Authentication successful!',
-                    token: token
+                    token: token,
+                    username: user.username,
                 });
             }
         });

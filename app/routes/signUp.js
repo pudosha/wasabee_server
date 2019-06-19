@@ -11,10 +11,7 @@ module.exports = function (app, db) {
                 where: {username: username}
             }).then(function (user) {
                 if (user) {
-                    res.json({
-                        success: false,
-                        message: 'This username is already taken'
-                    });
+                    res.sendStatus(401);
                 } else {
                     db.Users.create({
                         username: username,
@@ -22,11 +19,10 @@ module.exports = function (app, db) {
                         lastName: "sampleLastName",
                         password: password,
                     }).then(function (user) {
-                        let token = jwt.sign({user_id: user.user_id}, config.secret);
+                        let token = jwt.sign({username: user.username}, config.secret);
                         res.json({
-                            success: true,
-                            message: 'Authentication successful!',
-                            token: token
+                            token: token,
+                            username: user.username,
                         });
                     })
                 }
@@ -34,4 +30,3 @@ module.exports = function (app, db) {
         }
     );
 };
-

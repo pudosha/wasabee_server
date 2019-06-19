@@ -18,38 +18,92 @@ server.listen(8080, () => console.log('Server running on 8080'));
 require('./app/routes')(app, db);
 
 io.sockets.on('connection', function (socket) {
-    console.log("sending...");
-    socket.emit('message', {'id': 'abc'});
 
-    socket.on('newMessage', function (msg) {
-        // TODO("Check if user has access to this chat")
-        message['message'] = msg.message;
-        message['date'] = "14:27";
-        message['sender'] = "Sir";
-        socket.emit('message', msg);
+    db.Users.update({
+        isOnline: true,
+        where: {username: socket.username}
+    });
 
-        db.Messages.create({
-            chatId: msg.chatId,
-            userId: socket.userId,
-            message: msg.message,
+    db.ChatUser.findAll({
+        attributes: [['chatID', 'ID'],],
+        where: {username: socket.username}
+    }).then(chats => {
+        chats.forEach(chat => {
+            console.log(chat.get('ID'));
+            socket.join(chat.get('ID'));
         });
     });
-    socket.on('editMessage', function (msg) {
 
+    function isAuthorized(msg, next) {
+        msg = JSON.parse(msg);
+        console.log(msg);
+
+        db.ChatUser.findOne({
+            where: {
+                chatID: msg.chatID,
+                username: socket.username,
+            }
+        }).then(function (data) {
+            if (data) {
+                next(msg);
+            } else {
+                console.log("Unauthorized access attempt");
+            }
+        });
+    }
+
+    socket.on('newMessage', msg => {
+        isAuthorized(msg, function (msg) {
+            db.Messages.create({
+                chatID: msg.chatID,
+                username: socket.username,
+                message: msg.message,
+            }).then(message => {
+                console.log(message.toJSON());
+                console.log(msg.chatID);
+                io.to(msg.chatID).emit('newMessage', message);
+            });
+        })
+    });
+
+
+    socket.on('editMessage', msg => {
+        isAuthorized(msg, function (msg) {
+            db.Messages.update({
+                message: msg.message,
+                isEdited: true,
+                where: {messageID: message.messageID}
+            }).then(message => {
+                console.log(message.toJSON());
+                io.to(msg.chatID).emit('editMessage', message);
+            })
+        })
     });
     socket.on('deleteMessage', function (msg) {
-
+        isAuthorized(msg, function (msg) {
+            db.Messages.destroy({
+                where: {messageID: message.messageID}
+            }).then(message => {
+                console.log(message.toJSON());
+                io.to(msg.chatID).emit('deleteMessage', message);
+            })
+        })
     });
 
     socket.on('disconnect', function () {
-
+        db.Users.update({
+            isOnline: false,
+            where: {username: socket.username}
+        });
     });
 });
 
+/*
 setInterval(function () {
     message = {};
     message['message'] = "hoi";
     message['date'] = "14:26";
     message['sender'] = "Hel";
-    io.sockets.emit('message', message);
-}, 1000);
+    io.sockets.emit('newMessage', message);
+}, 10000);
+ */
