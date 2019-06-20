@@ -40,12 +40,6 @@ module.exports = (db, Sequelize) => {
 
     Users.beforeUpdate(generateHash);
 
-    Users.findOrCreate({
-        where: {username: "bunbun"},
-        defaults: {username: "bunbun"},
-        password: "bunbunbun"
-    });
-
     return Users;
 
 };

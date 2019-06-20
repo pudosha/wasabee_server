@@ -1,6 +1,6 @@
 const middleware = require('./../jwtMiddleware');
 
-function addUser(db, chatID, username) {
+function addUser(db, io, req, chatID, username) {
     db.ChatUsers.findOrCreate({
         where: {
             chatID: chatID,
@@ -11,10 +11,17 @@ function addUser(db, chatID, username) {
             username: username,
         }
 
-    })
+    });
+
+    socket = io.sockets.connected[io.usernameToSocketID[req.username]];
+
+    if (socket)
+        socket.join(chatID);
+    else
+        console.log(`User ${req.username} is offline`);
 }
 
-module.exports = function (app, db) {
+module.exports = function (app, db, io) {
     app.post('/createChat', middleware.checkToken, (req, res) => {
         let chatName = req.body.chatName,
             usernames = req.body.usernames;
@@ -29,8 +36,8 @@ module.exports = function (app, db) {
                 message: `${req.username} created the chat "${chat.chatName}"`,
             });
 
-            usernames.forEach(username => {addUser(db, chat.chatID, username)});
-            addUser(db, chat.chatID, req.username);
+            usernames.forEach(username => {addUser(db, io, req, chat.chatID, username)});
+            addUser(db, io, req, chat.chatID, req.username);
 
             console.log(chat);
             res.json(chat);

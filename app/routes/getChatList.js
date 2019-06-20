@@ -1,7 +1,7 @@
 const middleware = require('./../jwtMiddleware');
 
 module.exports = function (app, db) {
-    app.post('/getChatList', middleware.checkToken, (req, res) => {
+    app.get('/getChatList', middleware.checkToken, (req, res) => {
         db.ChatUsers.findAll({
             where: {username: req.username},
         }).then(chats => {

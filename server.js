@@ -1,108 +1,14 @@
 const express = require('express')
     , app = express()
     , server = require('http').createServer(app)
-    , io = require('socket.io').listen(server)
     , db = require('./app/models')
-    , bodyParser = require('body-parser')
-    , config = require("./app/config")
-    , middleware = require('./app/jwtMiddleware');
+    , io = require('./app/socket')(server, db)
+    , bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json({inflate: true}));
 
-io.use(middleware.checkTokenSocketio);
 
 server.listen(8080, () => console.log('Server running on 8080'));
 
-require('./app/routes')(app, db);
-
-io.sockets.on('connection', function (socket) {
-
-    db.Users.update(
-        {isOnline: true},
-        {where: {username: socket.username}});
-
-    db.ChatUsers.findAll({
-        attributes: [['chatID', 'ID'],],
-        where: {username: socket.username}
-    }).then(chats => {
-        chats.forEach(chat => {
-            console.log(chat.get('ID'));
-            socket.join(chat.get('ID'));
-        });
-    });
-
-    function ifAuthorized(msg, next) {
-        msg = JSON.parse(msg);
-        console.log(msg);
-
-        db.ChatUsers.findOne({
-            where: {
-                chatID: msg.chatID,
-                username: socket.username,
-            }
-        }).then(function (data) {
-            if (data) {
-                next(msg);
-            } else {
-                console.log("Unauthorized access attempt");
-            }
-        });
-    }
-
-    socket.on('newMessage', msg => {
-        ifAuthorized(msg, function (msg) {
-            db.Messages.create({
-                chatID: msg.chatID,
-                username: socket.username,
-                message: msg.message,
-            }).then(message => {
-                console.log(message.toJSON());
-                console.log(msg.chatID);
-                io.to(msg.chatID).emit('newMessage', message);
-            });
-        })
-    });
-
-
-    socket.on('editMessage', msg => {
-        ifAuthorized(msg, function (msg) {
-            db.Messages.update({
-                message: msg.message,
-                isEdited: true,
-                where: {messageID: message.messageID}
-            }).then(message => {
-                console.log(message.toJSON());
-                io.to(msg.chatID).emit('editMessage', message);
-            })
-        })
-    });
-    socket.on('deleteMessage', function (msg) {
-        ifAuthorized(msg, function (msg) {
-            db.Messages.destroy({
-                where: {messageID: message.messageID}
-            }).then(message => {
-                console.log(message.toJSON());
-                io.to(msg.chatID).emit('deleteMessage', message);
-            })
-        })
-    });
-
-    socket.on('disconnect', function () {
-        db.Users.update(
-            {isOnline: false},
-            {where: {username: socket.username}});
-    });
-});
-
-setInterval(function () {
-    db.Messages.create({
-        chatID: "123",
-        username: "testUser",
-        message: "testMessage",
-    }).then(message => {
-        console.log(message.toJSON());
-        console.log("123");
-        io.to("123").emit('newMessage', message);
-    });
-}, 10000);
+require('./app/routes')(app, db, io);

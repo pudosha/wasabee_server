@@ -2,16 +2,17 @@ let jwt = require('jsonwebtoken');
 const config = require('./config.js');
 
 let checkToken = (req, res, next) => {
+    console.log("post middleware");
     let token = req.headers['x-access-token'] || req.headers['authorization']; // Express headers are auto converted to lowercase
     if (token.startsWith('Bearer ')) {
         // Remove Bearer from string
         token = token.slice(7, token.length);
-    }
 
+    }
     if (token) {
         jwt.verify(token, config.secret, (err, decoded) => {
             if (err) {
-                console.log(token);
+                console.log(`token: ${token}`);
                 return res.sendStatus(401);
             } else {
                 req.username = decoded.username;
@@ -27,7 +28,7 @@ let checkToken = (req, res, next) => {
 let checkTokenSocketio = (socket, next) => {
     let token = socket.handshake.query.authToken; // Express headers are auto converted to lowercase
 
-    console.log("middleware");
+    console.log("socket middleware");
     if (token) {
         jwt.verify(token, config.secret, (err, decoded) => {
             if (err) {

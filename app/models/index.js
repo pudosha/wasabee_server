@@ -25,7 +25,16 @@ Messages.belongsTo(Chats, {
     constraints: false
 });
 
-db.sync();
+db.sync().then(a => {
+    Users.findOrCreate({
+        where: {username: "bunbun"},
+        defaults: {
+            username: "bunbun",
+            password: "bunbunbun"
+        },
+    });
+});
+
 
 module.exports = {
     Chats: Chats,

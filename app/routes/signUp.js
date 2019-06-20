@@ -17,10 +17,6 @@ module.exports = function (app, db) {
                         username: username,
                         password: password,
                     }).then(function (user) {
-                        db.ChatUsers.create({
-                            username: username,
-                            chatID: 123
-                        });
                         let token = jwt.sign({username: user.username}, config.secret);
                         res.json({
                             token: token,

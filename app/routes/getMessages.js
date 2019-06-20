@@ -1,20 +1,20 @@
 const middleware = require('./../jwtMiddleware');
 
 module.exports = function (app, db) {
-    app.post('/getMessages', middleware.checkToken, (req, res) => {
-        let chatID = req.body.chatID,
-            lastMessageID = req.body.lastMessageID,
-            messageCount = req.body.messageCount;
+    app.get('/getMessages', middleware.checkToken, (req, res) => {
+        let chatID = req.query.chatID,
+            lastMessageID = req.query.lastMessageID,
+            messageCount = req.query.messageCount;
 
         messageCount = (messageCount === undefined) ? 50 : messageCount;
-
-        console.log(req.username);
 
         Op = db.Sequelize.Op;
 
         whereClause = {'chatID': chatID};
         if (lastMessageID !== undefined)
             whereClause['messageID'] = {[Op.lt]: lastMessageID};
+        else
+            console.log("No lastMessageID specified");
 
         db.ChatUsers.findOne({
             where: {
