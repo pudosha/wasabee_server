@@ -10,7 +10,7 @@ module.exports = function (app, db) {
 
         Op = db.Sequelize.Op;
 
-        whereClause = {'chatID': chatID};
+        let whereClause = {'chatID': chatID};
         if (lastMessageID !== undefined)
             whereClause['messageID'] = {[Op.lt]: lastMessageID};
         else

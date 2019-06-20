@@ -13,7 +13,7 @@ function addUser(db, io, req, chatID, username) {
 
     });
 
-    socket = io.sockets.connected[io.usernameToSocketID[req.username]];
+    let socket = io.sockets.connected[io.usernameToSocketID[req.username]];
 
     if (socket)
         socket.join(chatID);
@@ -36,8 +36,8 @@ module.exports = function (app, db, io) {
                 message: `${req.username} created the chat "${chat.chatName}"`,
             });
 
+            usernames.push(req.username);
             usernames.forEach(username => {addUser(db, io, req, chat.chatID, username)});
-            addUser(db, io, req, chat.chatID, req.username);
 
             console.log(chat);
             res.json(chat);

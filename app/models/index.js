@@ -25,7 +25,7 @@ Messages.belongsTo(Chats, {
     constraints: false
 });
 
-db.sync().then(a => {
+db.sync().then(() => {
     Users.findOrCreate({
         where: {username: "bunbun"},
         defaults: {

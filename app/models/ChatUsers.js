@@ -12,6 +12,10 @@ module.exports = (db, Sequelize) => {
         },
     }, {
         timestamps: false,
+        indexes: [{
+            unique: true,
+            fields: ['chatID', 'username']
+        }]
     });
 
     return ChatUsers;
