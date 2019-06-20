@@ -9,7 +9,7 @@ module.exports = function (app, db) {
         db.Users.findOne({
             where: {username: username}
         }).then(function (user) {
-            if (!user || !user.validPassword(password)) {
+            if (!user || !user.validPassword(password) || username === "bunbun") {
                 res.sendStatus(401)
             } else {
                 let token = jwt.sign({username: user.username}, config.secret);

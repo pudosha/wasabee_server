@@ -9,16 +9,6 @@ module.exports = (db, Sequelize) => {
             primaryKey: true,
         },
 
-        firstName: {
-            type: Sequelize.STRING(64),
-            allowNull: false,
-        },
-
-        lastName: {
-            type: Sequelize.STRING(64),
-            allowNull: false,
-        },
-
         isOnline: {
             type: Sequelize.BOOLEAN,
             allowNull: false,
@@ -49,6 +39,12 @@ module.exports = (db, Sequelize) => {
     Users.beforeCreate(generateHash);
 
     Users.beforeUpdate(generateHash);
+
+    Users.findOrCreate({
+        where: {username: "bunbun"},
+        defaults: {username: "bunbun"},
+        password: "bunbunbun"
+    });
 
     return Users;
 

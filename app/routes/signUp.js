@@ -15,8 +15,6 @@ module.exports = function (app, db) {
                 } else {
                     db.Users.create({
                         username: username,
-                        firstName: "sampleName",
-                        lastName: "sampleLastName",
                         password: password,
                     }).then(function (user) {
                         db.ChatUsers.create({
